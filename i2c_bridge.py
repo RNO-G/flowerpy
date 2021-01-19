@@ -21,6 +21,8 @@ class I2CBridge():
         self.dev.write(self.dev.DEV_FLOWER, [self.map['I2C_READ_REG'], 0, 0, 0])
         #i2c data should show up in the i2c_data_reg
         i2c_read_data = self.dev.readRegister(self.dev.DEV_FLOWER, self.map['I2C_DATA_REG'])
+        #data from specified register will appear in lowest byte
+        #data from specified register+1 will appear in the middle byte
         return i2c_read_data
     
     def write(self, reg, cmd):
