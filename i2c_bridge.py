@@ -1,6 +1,7 @@
 import flower
-
-
+#
+# This controls an SPI-to-I2C bridge implemented on the FPGA
+#
 class I2CBridge():
     map = {
         'I2C_WRITE_REG' : 0x7C,
@@ -31,14 +32,14 @@ class I2CBridge():
         #write to i2c bridge
         self.dev.write(self.dev.DEV_FLOWER, spi_data)
 
-
     def test(self):
         None
 
-
+'''
 if __name__=='__main__':
 
     d = I2CBridge()
 
     for i in range(0, 30, 1):
         print d.read(i)
+'''
