@@ -6,11 +6,11 @@ import time
 class ClockConfig:
     def __init__(self):
         
-        self.i2c = i2c_bridge()
+        self.i2c = i2c_bridge.I2CBridge()
         self.i2c.write(0xFF, 0x00) #set to page 0
         self.page = 0
 
-    def configure(self):
+    def configure(self, filename='config/Si5338-Registers.h'):    
         #
         # config procedure for Si5338. A pain in the neck!
         #
@@ -19,26 +19,30 @@ class ClockConfig:
         #pause LOL
         self.write(241, 0x80)
         #load register config
-        self.load(TODO)
+        self.load(filename)
         #'Validate clock input status'
         val = 4
         while val & 0x4:
             val = self.read(218)
         #'Configure PLL for locking'
-        self.read_modify_write(49, 0x00, 0x80)
-        #'Wait 25 ms'
-        time.sleep(0.025)
+        self.readModifyWrite(49, 0x00, 0x80)
+        #'Initiate locking of PLL'
+        self.readModifyWrite(246, 0x2, 0x2)
+        #'Wait a bit'
+        time.sleep(0.1)
         #'Restart LOL'
         self.write(241, 0x65)
         #'Confirm PLL Lock Status'
         val = 0x11
+        print('waiting on lock status....\r')
         while val & 0x11:
             val = self.read(218)
+        print('done')
         #'Copy FCAL registers'
         # 237[1:0] to 47[1:0]
         val = self.read(237)
         val &= 0x3
-        self.readModifyWrite(47, cal, 0x3)
+        self.readModifyWrite(47, val, 0x3)
         # 236 to 46
         val = self.read(236)
         self.write(46, val)
@@ -50,34 +54,45 @@ class ClockConfig:
         # 'Set PLL to use FCAL values'
         self.readModifyWrite(49, 0x80, 0x80)
         # Not using down-spread
-        # Enable outputs
+        # Enable outputs reg_230[4]
         self.readModifyWrite(230, 0x00, 0x10)
+
+    def disableOutputs(self):
+        self.readModifyWrite(230, 0x10, 0x10)
         
-        
-    def load(self, filename=None):
-        None
+    def load(self, filename):        
+        config_registers = loadRegisterFile(filename)
+        for i in range(len(config_registers)):
+            mask = config_registers[i][2]
+            addr = config_registers[i][0]
+            val  = config_registers[i][1]
+            if mask == 0:
+                continue
+            elif mask != 0xFF:
+                self.readModifyWrite(addr, val, mask)
+            else:
+                self.write(addr, val)     
 
     def read(self, addr):
-        val = self.i2c.read(adr)[0]
+        val = self.i2c.read(addr)[3]
         return val
 
     def write(self, addr, val):
         self.i2c.write(addr, val)
-
 
     def readModifyWrite(self, addr, val, mask):
         #
         # MASK = bits to be updated
         #
         oldval = self.read(addr)
+        #print 'rmw', oldval
         oldval &= mask ^ 0xFF
         #make sure we write sensible values
         val = val & mask
         val |= oldval
         self.write(addr, val)
         
-
-def loadRegisterFile(filename='config/Si5338-Registers.h'):
+def loadRegisterFile(filename):
     #
     # parser of the c header file from ClockBuilderPro
     #
@@ -96,7 +111,7 @@ def loadRegisterFile(filename='config/Si5338-Registers.h'):
     f.close()
     return pll_configuration_registers
     
-
 if __name__=='__main__':
-    loadRegisterFile()
-    
+    pll = ClockConfig()
+    pll.configure()
+    #pll.disableOutputs()
