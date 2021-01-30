@@ -109,6 +109,7 @@ def loadRegisterFile(filename):
                 pll_configuration_registers.append([int(tmp[0]), int(tmp[1], 16), int(tmp[2], 16)])
 
     f.close()
+    
     return pll_configuration_registers
     
 if __name__=='__main__':

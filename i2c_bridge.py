@@ -17,14 +17,12 @@ class I2CBridge():
         spi_data = [self.map['I2C_WRITE_REG'], 1, reg & 0xFF, 0]
         #write address to i2c bridge
         self.dev.write(self.dev.DEV_FLOWER, spi_data)
-        #print self.dev.readRegister(self.dev.DEV_FLOWER, self.map['I2C_WRITE_REG'])
         #toggle an i2c read (address pulsed)
         self.dev.write(self.dev.DEV_FLOWER, [self.map['I2C_READ_REG'], 0, 0, 0])
         #i2c data should show up in the i2c_data_reg
         i2c_read_data = self.dev.readRegister(self.dev.DEV_FLOWER, self.map['I2C_DATA_REG'])
         #data from specified register will appear in lowest byte
         #data from specified register+1 will appear in the middle byte
-        #print 'i2c bridge', reg, i2c_read_data
         return i2c_read_data
     
     def write(self, reg, cmd):
@@ -36,11 +34,3 @@ class I2CBridge():
     def test(self):
         None
 
-'''
-if __name__=='__main__':
-
-    d = I2CBridge()
-
-    for i in range(0, 300, 1):
-        print d.read(i), d.read(i)[3]
-'''
