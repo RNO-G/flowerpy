@@ -24,7 +24,8 @@ class Flower():
         'RAM_ADR'       : 0x45, #ram address
         'MODE'          : 0x42, #select readout mode
         'CALPULSE'      : 0x2A, #toggle RF switch/pulser board
-        }
+        'DATVALID'      : 0x3A, #once ADCs are setup, this toggles Rx FIFOs
+    }
         
     def __init__(self, spi_clk_freq=10000000):
         if not os.path.isfile('/sys/class/gpio/gpio61/value'):
