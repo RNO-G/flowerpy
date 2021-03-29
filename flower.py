@@ -106,28 +106,7 @@ class Flower():
                     f.write(str(fw_info[i])+'\n')
             f.close()
                     
-    '''
-    def reset(self, sync=True):
-        if sync:
-            self.write(self.BUS_MASTER,[39,0,0,1])
-        self.write(self.BUS_SLAVE, [127,0,0,1])
-        self.write(self.BUS_MASTER, [127,0,0,1])
-        if sync:
-            self.write(self.BUS_MASTER,[39,0,0,0])
-
-    def getDataValid(self):
-        data_valid_master = (self.readRegister(self.BUS_MASTER, 8)[3] & 16) >> 4
-        data_valid_slave  = (self.readRegister(self.BUS_SLAVE, 8)[3] & 16) >> 4
-        return data_valid_master, data_valid_slave
-            
-    def resetADC(self, sync=True):
-        if sync:
-            self.write(self.BUS_MASTER,[39,0,0,1])
-        self.write(self.BUS_SLAVE, [127,0,0,4])
-        self.write(self.BUS_MASTER, [127,0,0,4])
-        if sync:
-            self.write(self.BUS_MASTER,[39,0,0,0])
-                                                        
+    '''                                                       
     def boardInit(self, verbose=False):
         self.write(1,[39,0,0,0]) #make sure sync disabled
         self.externalTriggerInputConfig(enable=False) #disable external trigger 
@@ -147,7 +126,8 @@ class Flower():
         self.setReadoutBuffer(0)
         
         self.getDataManagerStatus(verbose=verbose)
-
+    '''
+    '''
     #same as above, but just reset the data manager stuff:
     def eventInit(self):
         self.write(1,[39,0,0,0])
@@ -161,42 +141,22 @@ class Flower():
         self.write(1,[126,0,0,1]) #reset event counter/timestamp
         self.write(1,[39,0,0,0]) #release sync
         self.setReadoutBuffer(0)
-        
+    '''    
     def bufferClear(self, buf_clear_flag=15):
-         self.write(self.BUS_MASTER,[39,0,0,1]) #send sync
-         self.write(self.BUS_SLAVE, [77,0,0,buf_clear_flag]) #clear buffers on slave
-         self.write(self.BUS_MASTER,[77,0,0,buf_clear_flag]) #clear buffers on master
-         self.write(self.BUS_MASTER,[39,0,0,0]) #release sync
+         self.write(self.DEV_FLOWER,[77,0,0,buf_clear_flag]) 
                 
     def calPulser(self, enable=True, readback=False):
         if enable:
-            self.write(0, [42,0,0,3])
-            self.write(1, [42,0,0,3])
+            self.write(self.DEV_FLOWER, [42,0,0,3])
         else:
-            self.write(0, [42,0,0,0])
-            self.write(1, [42,0,0,0])
+            self.write(self.DEV_FLOWER, [42,0,0,0])
         if readback:
-            print self.readRegister(0,42)
-            print self.readRegister(1,42)
-
-    def setReadoutBuffer(self, buf, readback=False):
-        if buf < 0 or buf > 3:
-            return None
-        self.write(0, [78,0,0,buf])
-        self.write(1, [78,0,0,buf])
-        if readback:
-            print self.readRegister(0,78)
-            print self.readRegister(1,78)
-        
-    def softwareTrigger(self, sync=True):
-        if sync:
-            self.write(1,[39,0,0,1]) #send sync command to master
-        self.write(1,[64,0,0,1]) #send software trig to slave
-        self.write(0,[64,0,0,1]) #send software trig to master
-
-        if sync:
-            self.write(1,[39,0,0,0]) #release sync
-
+            print self.readRegister(self.DEV_FLOWER,42)
+ 
+    def softwareTrigger(self, trig):
+        self.write(self.DEV_FLOWER,[64,0,0,trig]) #send software trig 
+       
+    '''
     def getDataManagerStatus(self, verbose=True):
         status_master = self.readRegister(1, 7)
         status_slave = self.readRegister(0,7)
@@ -272,7 +232,7 @@ class Flower():
             print 'trig count   :', metadata['slave']['trig_count'], metadata['master']['trig_count']
             print 'buffer number:', metadata['slave']['buffer_no'], metadata['master']['buffer_no']
         return metadata
-
+    '''
     def readSysEvent(self, address_start=1, address_stop=64, save=True, filename='test.dat'):
         data_master = self.readBoardEvent(1, address_start=address_start, address_stop=address_stop)
         data_slave = self.readBoardEvent(0, address_start=address_start, address_stop=address_stop)
@@ -294,38 +254,38 @@ class Flower():
 
         return data 
 
-    def readChan(self, dev, channel, address_start=0, address_stop=64):
-        if channel < 0 or channel > 7:
+    def readRam(self, dev, channel, address_start=0, address_stop=128):
+        if channel < 0 or channel > 2:
             return None
         
         channel_mask = 0x00 | 1 << channel
         self.write(dev, [65,0,0,channel_mask])
-        data=[]
+        data0=[]
+        data1=[]
         for i in range(address_start, address_stop):
-            data.extend(self.readRamAddress(dev, i))
+            _dat0, _dat1 = self.readRamAddress(dev, i)
+            data0.extend(_dat0)
+            data1.extend(_dat1)
 
-        return data
+        return data0, data1
             
     def readRamAddress(self, dev, address, readback_address=False, verbose=False):
-        data=[]
+        data0=[]
+        data1=[]
         return_address=0
         self.write(dev, [69,0,0, 0xFF & address]) #note only picks off lower byte of address input
         if readback_address:
             return_address=self.readRegister(dev,69)
         self.write(dev,[35,0,0,0])
-        data.extend(self.read(dev))
+        data0.extend(self.read(dev))
         self.write(dev,[36,0,0,0])
-        data.extend(self.read(dev))
-        self.write(dev,[37,0,0,0])
-        data.extend(self.read(dev))
-        self.write(dev,[38,0,0,0])
-        data.extend(self.read(dev))
+        data1.extend(self.read(dev))
 
         if verbose:
             print dev,return_address,data
 
-        return data
-
+        return data0, data1
+    '''
     def getCurrentAttenValues(self, verbose=False):
         current_atten_values = []
         temp=self.readRegister(1,50)
