@@ -11,18 +11,17 @@ if __name__ == '__main__':
     #test pattern of
     #setup_board.spiWriteBothADCS(dev, setup_board.HMCAD_ADR_TP_WORD1, 0x71, 0x00)
     #setup_board.spiWriteBothADCS(dev, setup_board.HMCAD_ADR_TP_WORD2, 0xAF, 0x00)
-
+    #0x20 for dual-pat, 0x40 for ramp
     setup_board.spiWriteBothADCS(dev, setup_board.HMCAD_ADR_TP_MODE, 0x00, 0x20) #0x00, 0x20 for dual pattern
     setup_board.spiWriteBothADCS(dev, setup_board.HMCAD_ADR_TP_SYNC, 0x00, 0x00)
 
-    dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, 0x02])
+    dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, 0x04])
 
     #sys.exit()
     
-    
-    dev.softwareTrigger(1)
-    print dev.readRam(dev.DEV_FLOWER,0)
-    dev.softwareTrigger(0)
+    #dev.softwareTrigger(1)
+    #print dev.readRam(dev.DEV_FLOWER,0)
+    #dev.softwareTrigger(0)
     
     #turn off test pattern
     setup_board.spiWriteBothADCS(dev, setup_board.HMCAD_ADR_TP_MODE, 0x00, 0x00)
@@ -35,3 +34,4 @@ if __name__ == '__main__':
     dev.softwareTrigger(0)
 
     numpy.savetxt('test.txt', numpy.array(dat))
+    dev.calPulser(False)

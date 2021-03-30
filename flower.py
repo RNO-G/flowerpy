@@ -254,7 +254,7 @@ class Flower():
 
         return data 
 
-    def readRam(self, dev, channel, address_start=0, address_stop=128):
+    def readRam(self, dev, channel, address_start=0, address_stop=255):
         if channel < 0 or channel > 2:
             return None
         
@@ -262,7 +262,7 @@ class Flower():
         self.write(dev, [65,0,0,channel_mask])
         data0=[]
         data1=[]
-        for i in range(address_start, address_stop):
+        for i in range(address_start, address_stop, 1):
             _dat0, _dat1 = self.readRamAddress(dev, i)
             data0.extend(_dat0)
             data1.extend(_dat1)
