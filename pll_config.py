@@ -1,6 +1,4 @@
 import i2c_bridge
-import binascii
-import gc
 import time
 
 class ClockConfig:
