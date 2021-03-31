@@ -25,6 +25,11 @@ HMCAD_ADR_BYTE_FORMAT = 0x46
 HMCAD_ADR_VCM_DRIVE = 0x50
 HMCAD_ADR_STARTUP = 0x56
 
+##test patterns for start-up alignment
+FLOWER_TEST_PAT_1 = 0x71
+FLOWER_TEST_PAT_2 = 0xAF
+
+
 def spiWriteBothADCS(dev, reg, cmd_hi, cmd_lo):
     dev.write(dev.DEV_FLOWER, [CONFIG_REG_0, 0,0,0]) #select ADC0
     dev.write(dev.DEV_FLOWER, [CONFIG_REG_1, reg, cmd_hi, cmd_lo]) #config ADC0
@@ -72,34 +77,60 @@ def configADC(dev):
     adcPowerDown(dev, True)
     adcPowerDown(dev, False)
     time.sleep(15)
+
+
+def testPatternBitShift(dev):
+    ##enable dual-word test pattern + align datastreams
+
+    #write test-pattern values
+    spiWriteBothADCS(dev, HMCAD_ADR_TP_WORD1, FLOWER_TEST_PAT_1, 0x00)
+    spiWriteBothADCS(dev, HMCAD_ADR_TP_WORD2, FLOWER_TEST_PAT_2, 0x00)
+
+    #enable test-pattern output:
+    spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x20) #set dual-custom word pattern
+    spiWriteBothADCS(dev, HMCAD_ADR_TP_SYNC, 0x00, 0x00) #turn off sync pattern
+
+    #set bitshift value to 0
+    dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, 0x00])
+
+    bitshift_good = False
+    bitshift_val = 0
+    while(not bitshift_good and bitshift_val < 8):
+        dev.softwareTrigger(1)
+        dat = dev.readRam(dev.DEV_FLOWER, 0, 0, 16)
+        dev.softwareTrigger(0)
+        if (dat[0][0] != FLOWER_TEST_PAT_1) and (dat[0][0] != FLOWER_TEST_PAT_2):
+            #increment the bitshift
+            dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, bitshift_val])
+        else:
+            bitshift_good = True
+
+        bitshift_val += 1
+
+    spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x00) #disable test-pattern output
+    
+    return bitshift_good, bitshift_val
+        
+def pllConfig(filename='config/Si5338-RevB-Registers-472MHz.h'):
+    ## configure PLL (only needs done on board power cycle)
+    ## PLL needs to be configured before ADC can be setup
+    pll = pll_config.ClockConfig()
+    pll.configure(filename)
+    time.sleep(1)
+    
+def boardStartup(dev):
+    ##run this on board startup
+    #setup PLL
+    pllConfig()
+    #ensure data-valid is low
+    datValid(dev, 0)
+    #setup basic ADC configuration
+    configADC(dev)
+    #data should ready to flow:
+    datValid(dev, 1)
     
 if __name__=='__main__':
 
-    ## configure PLL
-    pll = pll_config.ClockConfig()
-    pll.configure('config/Si5338-RevB-Registers-472MHz.h')
-    time.sleep(1)
-    
-    ## setup ADC chips
     dev = flower.Flower()
-    datValid(dev, 0)
-
-    configADC(dev)
-    
-    # Test Pattern 
-    spiWriteBothADCS(dev, HMCAD_ADR_TP_WORD1, 0x71, 0x00)
-    spiWriteBothADCS(dev, HMCAD_ADR_TP_WORD2, 0xAF, 0x00)
-
-    #spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x40) #set ramp test pattern
-    spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x20) #set dual-custom word pattern
-    #spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x10) #set single-custom word pattern
-    #spiWriteBothADCS(dev, HMCAD_ADR_TP_MODE, 0x00, 0x00) #turn off test pattern
-    #spiWriteBothADCS(dev, HMCAD_ADR_TP_SYNC, 0x00, 0x02) #enable sync pattern
-    spiWriteBothADCS(dev, HMCAD_ADR_TP_SYNC, 0x00, 0x00) #turn off sync pattern
-
-    #set bitshift to 0
-    dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, 0x00])
-    
-    ##enable data-valid --> data from ADCs should start flowing into FPGA
-    datValid(dev, 1)
-    
+    boardStartup(dev)
+    testPatternBitShift(dev)
