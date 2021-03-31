@@ -254,7 +254,7 @@ class Flower():
 
         return data 
 
-    def readRam(self, dev, channel, address_start=0, address_stop=255):
+    def readRam(self, dev, channel, address_start=0, address_stop=64):
         if channel < 0 or channel > 2:
             return None
         
