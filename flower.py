@@ -233,41 +233,26 @@ class Flower():
             print 'buffer number:', metadata['slave']['buffer_no'], metadata['master']['buffer_no']
         return metadata
     '''
-    def readSysEvent(self, address_start=1, address_stop=64, save=True, filename='test.dat'):
-        data_master = self.readBoardEvent(1, address_start=address_start, address_stop=address_stop)
-        data_slave = self.readBoardEvent(0, address_start=address_start, address_stop=address_stop)
-        with open(filename, 'w') as f:
-            for i in range(len(data_master[0])):
-                for j in range(len(data_master)):
-                    f.write(str(data_master[j][i]))
-                    f.write('\t')
-                for j in range(len(data_slave)):
-                    f.write(str(data_slave[j][i]))
-                    f.write('\t')
-                f.write('\n')
-        return data_master+data_slave
-                    
-    def readBoardEvent(self, dev, channel_start=0, channel_stop=7, address_start=0, address_stop=64):
-        data=[]
-        for i in range(channel_start, channel_stop+1):
-            data.append(self.readChan(dev, i, address_start, address_stop))
+                       
+    
+    def readRam(self, dev, address_start=0, address_stop=64):
 
-        return data 
-
-    def readRam(self, dev, channel, address_start=0, address_stop=64):
-        if channel < 0 or channel > 2:
-            return None
-        
-        channel_mask = 0x00 | 1 << channel
-        self.write(dev, [65,0,0,channel_mask])
+        self.write(dev, [65,0,0,1]) #read RAM 0 [ch's 0 & 1]
         data0=[]
         data1=[]
         for i in range(address_start, address_stop, 1):
             _dat0, _dat1 = self.readRamAddress(dev, i)
             data0.extend(_dat0)
             data1.extend(_dat1)
-
-        return data0, data1
+        self.write(dev, [65,0,0,2]) #read RAM 1 [ch's 2 & 3]
+        data2=[]
+        data3=[]
+        for i in range(address_start, address_stop, 1):
+            _dat2, _dat3 = self.readRamAddress(dev, i)
+            data2.extend(_dat2)
+            data3.extend(_dat3)
+                  
+        return data0, data1, data2, data3
             
     def readRamAddress(self, dev, address, readback_address=False, verbose=False):
         data0=[]
@@ -459,3 +444,5 @@ if __name__=="__main__":
     d=Flower()
     #d.boardInit()
     d.identify(True)
+    reg = d.readRegister(d.DEV_FLOWER, 0x42)
+    

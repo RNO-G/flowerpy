@@ -93,15 +93,33 @@ def testPatternBitShift(dev):
     #set bitshift value to 0
     dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, 0x00])
 
+    ##ALIGN ADC0 BITSTREAM using test-pattern
     bitshift_good = False
     bitshift_val = 0
     while(not bitshift_good and bitshift_val < 8):
         dev.softwareTrigger(1)
-        dat = dev.readRam(dev.DEV_FLOWER, 0, 0, 16)
+        dat = dev.readRam(dev.DEV_FLOWER, 0, 16)
         dev.softwareTrigger(0)
         if (dat[0][0] != FLOWER_TEST_PAT_1) and (dat[0][0] != FLOWER_TEST_PAT_2):
             #increment the bitshift
-            dev.write(dev.DEV_FLOWER, [0x42, 0x00, 0x00, bitshift_val])
+            reg = dev.readRegister(dev.DEV_FLOWER, 0x42)
+            dev.write(dev.DEV_FLOWER, [0x42, 0x00, reg[2], bitshift_val])
+        else:
+            bitshift_good = True
+
+        bitshift_val += 1
+
+    ##ALIGN ADC1 BITSTREAM using test-pattern
+    bitshift_good = False
+    bitshift_val = 0
+    while(not bitshift_good and bitshift_val < 8):
+        dev.softwareTrigger(1)
+        dat = dev.readRam(dev.DEV_FLOWER, 0, 16)
+        dev.softwareTrigger(0)
+        if (dat[2][0] != FLOWER_TEST_PAT_1) and (dat[2][0] != FLOWER_TEST_PAT_2):
+            #increment the bitshift
+            reg = dev.readRegister(dev.DEV_FLOWER, 0x42)
+            dev.write(dev.DEV_FLOWER, [0x42, 0x00, bitshift_val, reg[3]])
         else:
             bitshift_good = True
 
@@ -133,4 +151,6 @@ if __name__=='__main__':
 
     dev = flower.Flower()
     boardStartup(dev)
+    print 'tuning adc bitstream..'
     testPatternBitShift(dev)
+    print 'done. should be ready to go'
