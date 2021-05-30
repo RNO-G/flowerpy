@@ -1,6 +1,7 @@
 import flower
 import pll_config
 import time
+import align_adcs
 
 ##registers on FPGA-->
 CONFIG_REG_0 = 0x3B
@@ -153,4 +154,7 @@ if __name__=='__main__':
     boardStartup(dev)
     print 'tuning adc bitstream..'
     testPatternBitShift(dev)
-    print 'done. should be ready to go'
+    print 'aligning adc samples..'
+    align_adcs.do(dev)
+    print 'done'
+    
