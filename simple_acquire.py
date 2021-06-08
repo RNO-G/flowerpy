@@ -1,9 +1,12 @@
 import flower
 import numpy
-
+import setup_board as setup
 if __name__ == '__main__':
 
+    
     dev = flower.Flower()
+    setup.adcGainSelect(dev,1)
+
     dev.calPulser(True)
 
     dev.softwareTrigger(0)

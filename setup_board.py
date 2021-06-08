@@ -25,6 +25,8 @@ HMCAD_ADR_PHASE_DDR = 0x42
 HMCAD_ADR_BYTE_FORMAT = 0x46
 HMCAD_ADR_VCM_DRIVE = 0x50
 HMCAD_ADR_STARTUP = 0x56
+HMCAD_ADR_CGAIN_CFG = 0x33
+HMCAD_ADR_DUAL_CGAIN = 0x2B
 
 ##test patterns for start-up alignment
 FLOWER_TEST_PAT_1 = 0x71
@@ -66,6 +68,7 @@ def configADC(dev):
     spiWriteBothADCS(dev, HMCAD_ADR_LVDS_DRIVE, 0x05, 0x55) #set LVDS drive to RSDS standards
     spiWriteBothADCS(dev, HMCAD_ADR_NUM_CHAN, 0x00, 0x02) #config to 2-chan operation, clkdivide=1
     spiWriteBothADCS(dev, HMCAD_ADR_STARTUP, 0x00, 0x04) #configure start-up time according to datasheet
+    adcGainSelect(dev, 0)
     #spiWriteBothADCS(dev, HMCAD_ADR_INVERT_INP, 0x00, 0x30) #invert inputs, 2ch mode
     adcPowerDown(dev, False) #startup!
     print 'starting up...'
@@ -136,7 +139,22 @@ def pllConfig(filename='config/Si5338-RevB-Registers-472MHz.h'):
     pll = pll_config.ClockConfig()
     pll.configure(filename)
     time.sleep(1)
-    
+
+def adcGainSelect(dev, gain=0):
+    '''
+    if gain=0, 1x. 
+    if gain=1, 5x.
+    if gain=2, 10x
+    '''
+    if gain==0:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x00)
+    elif gain==1:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x55)
+    elif gain==2:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x77)
+    else:
+        print 'incorrect gain setting'
+
 def boardStartup(dev):
     ##run this on board startup
     #setup PLL
