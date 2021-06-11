@@ -200,5 +200,4 @@ if __name__=="__main__":
     d=Flower()
     #d.boardInit()
     d.identify(True)
-    reg = d.readRegister(d.DEV_FLOWER, 0x42)
-    print reg
+
