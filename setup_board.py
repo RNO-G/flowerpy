@@ -143,14 +143,17 @@ def pllConfig(filename='config/Si5338-RevB-Registers-472MHz.h'):
 def adcGainSelect(dev, gain=0):
     '''
     if gain=0, 1x. 
-    if gain=1, 5x.
-    if gain=2, 10x
+    if gain=1, 2.5x
+    if gain=2, 5x.
+    if gain=3, 10x
     '''
     if gain==0:
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x00)
     elif gain==1:
-        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x55)
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x33)
     elif gain==2:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x55)
+    elif gain==3:
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x77)
     else:
         print 'incorrect gain setting'
