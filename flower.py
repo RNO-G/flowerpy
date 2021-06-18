@@ -91,12 +91,12 @@ class Flower():
         
         firmware_version = self.readRegister(self.DEV_FLOWER, self.map['FIRMWARE_VER'])
         firmware_version = [firmware_version[1], str((firmware_version[3] & 0xF0)>>4)+'.'+str(firmware_version[3]&0x0F)]
-        print 'firmware version:', firmware_version
+        print ('firmware version:', firmware_version)
         firmware_date = self.readRegister(self.DEV_FLOWER, self.map['FIRMWARE_DATE'])
         firmware_date = [(firmware_date[1])<<4 | (firmware_date[2] & 0xF0)>>4, firmware_date[2] & 0x0F, firmware_date[3]]
-        print 'firmware date:', firmware_date
-        print 'board DNA:', hex(dna)
-        print '-----------------------------------'
+        print ('firmware date:', firmware_date)
+        print ('board DNA:', hex(dna))
+        print ('-----------------------------------')
         fw_info.extend([0, hex(dna), firmware_version, firmware_date])
 
         if save:
@@ -154,7 +154,7 @@ class Flower():
         else:
             self.write(self.DEV_FLOWER, [42,0,0,0])
         if readback:
-            print self.readRegister(self.DEV_FLOWER,42)
+            print (self.readRegister(self.DEV_FLOWER,42))
  
     def softwareTrigger(self, trig):
         self.write(self.DEV_FLOWER,[64,0,0,trig]) #send software trig 
@@ -191,7 +191,7 @@ class Flower():
         data1.extend(self.read(dev))
 
         if verbose:
-            print dev,return_address,data
+            print (dev,return_address,data)
 
         return data0, data1
     

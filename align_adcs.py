@@ -33,7 +33,7 @@ def align(dev, num_tries=20):
         if peaks is not None:
             diff = peaks[1] - peaks[0] #get difference
             if tries == 1:
-                print 'adc sample diff is', diff
+                print ('adc sample diff is', diff)
             if diff == 0: return 0 #aligned!
             elif diff == 1: #adc1 slower by 1 sample
                 dev.write(dev.DEV_FLOWER, [ADC1_SAMPLE_SHIFT_REG, 0, 0, 0x01])
@@ -67,9 +67,9 @@ def do(dev):
     dev.calPulser(True)
     retval = align(dev)
     if retval == 0:
-        print 'adcs succesfully aligned'
+        print ('adcs succesfully aligned')
     else:
-        print 'problem here..'
+        print ('problem here..')
     dev.calPulser(False)
     return retval
 

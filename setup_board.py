@@ -71,7 +71,7 @@ def configADC(dev):
     adcGainSelect(dev, 0)
     #spiWriteBothADCS(dev, HMCAD_ADR_INVERT_INP, 0x00, 0x30) #invert inputs, 2ch mode
     adcPowerDown(dev, False) #startup!
-    print 'starting up...'
+    print ('starting up...')
     time.sleep(15)
     #configure input cross-switch selection
     spiWriteBothADCS(dev, HMCAD_ADR_INPUTSEL_0, 0x02, 0x02) #set IN1 to ADC1 and ADC2
@@ -156,7 +156,7 @@ def adcGainSelect(dev, gain=0):
     elif gain==3:
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x77)
     else:
-        print 'incorrect gain setting'
+        print ('incorrect gain setting')
 
 def boardStartup(dev):
     ##run this on board startup
@@ -173,9 +173,9 @@ if __name__=='__main__':
 
     dev = flower.Flower()
     boardStartup(dev)
-    print 'tuning adc bitstream..'
+    print ('tuning adc bitstream..')
     testPatternBitShift(dev)
-    print 'aligning adc samples..'
+    print ('aligning adc samples..')
     align_adcs.do(dev)
-    print 'done'
+    print ('done')
     
