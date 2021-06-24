@@ -5,9 +5,9 @@ if __name__ == '__main__':
 
     
     dev = flower.Flower()
-    setup.adcGainSelect(dev,1)
+    setup.adcGainSelect(dev,5)
 
-    dev.calPulser(True)
+    dev.calPulser(False)
 
     dev.softwareTrigger(0)
     dev.softwareTrigger(1)

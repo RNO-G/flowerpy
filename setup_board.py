@@ -146,6 +146,7 @@ def adcGainSelect(dev, gain=0):
     if gain=1, 2.5x
     if gain=2, 5x.
     if gain=3, 10x
+    if gain=4, 20x
     '''
     if gain==0:
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x00)
@@ -155,6 +156,10 @@ def adcGainSelect(dev, gain=0):
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x55)
     elif gain==3:
         spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0x77)
+    elif gain==4:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0xAA)
+    elif gain==5:
+        spiWriteBothADCS(dev, HMCAD_ADR_DUAL_CGAIN, 0x00, 0xCC)
     else:
         print ('incorrect gain setting')
 
