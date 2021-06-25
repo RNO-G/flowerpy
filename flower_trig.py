@@ -18,10 +18,10 @@ class FlowerTrig():
     def __init__(self):
         self.dev = flower.Flower()
     
-    def initCoincTrig(self, num_coinc, thresh, vppmode=True, coinc_window=2):
+    def initCoincTrig(self, num_coinc, thresh, servo_thresh, vppmode=True, coinc_window=2):
         
         for i in range(4):
-            self.dev.write(self.dev.DEV_FLOWER, [self.map['COINC_TRIG_CH0_THRESH']+i,0,0, thresh[i]])
+            self.dev.write(self.dev.DEV_FLOWER, [self.map['COINC_TRIG_CH0_THRESH']+i,0,servo_thresh[i], thresh[i]])
         self.dev.write(self.dev.DEV_FLOWER, [self.map['COINC_TRIG_PARAM'],
                                              vppmode,coinc_window, num_coinc])
 
