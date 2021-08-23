@@ -5,10 +5,9 @@ ADC0_SAMPLE_SHIFT_REG = 0x38
 ADC1_SAMPLE_SHIFT_REG = 0x39
 
 def acquire(dev):
-    dev.softwareTrigger(0)
-    dev.softwareTrigger(1)
+    dev.bufferClear()
+    dev.softwareTrigger()
     dat = dev.readRam(dev.DEV_FLOWER, 0, 128)
-    dev.softwareTrigger(0)
     return dat
 
 def getPeaks(dat):

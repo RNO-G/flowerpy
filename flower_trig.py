@@ -13,6 +13,7 @@ class FlowerTrig():
         'COINC_TRIG_CH2_THRESH'  : 0x59,
         'COINC_TRIG_CH3_THRESH'  : 0x5A,
         'COINC_TRIG_PARAM'       : 0x5B,
+        'TRIG_ENABLES'           : 0x3D,
     }
         
     def __init__(self):
@@ -38,6 +39,10 @@ class FlowerTrig():
         scaler_hi  = (read_scaler_reg[1] & 0xFF) << 4 | (read_scaler_reg[2] & 0xF0) >> 4
         return scaler_low, scaler_hi
 
+    def trigEnable(self, coinc_trig=0, pps_trig=0, ext_trig=0):
+        '''specify '0' or '1' for trigger types
+        '''
+        self.dev.write(self.dev.DEV_FLOWER, [self.map['TRIG_ENABLES'],ext_trig, coinc_trig, pps_trig])
         
     
     

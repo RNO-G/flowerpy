@@ -5,7 +5,6 @@ import Adafruit_BBIO.GPIO as GPIO
 import math
 import time
 import os
-#from tools.bf import *
 import datetime
 
 class Flower():
@@ -106,27 +105,13 @@ class Flower():
                     f.write(str(fw_info[i])+'\n')
             f.close()
                     
-    '''                                                       
+                                                           
     def boardInit(self, verbose=False):
-        self.write(1,[39,0,0,0]) #make sure sync disabled
-        self.externalTriggerInputConfig(enable=False) #disable external trigger 
-        self.enablePhasedTriggerToDataManager(False, readback=verbose)
-        self.enablePhasedTrigger(False, readback=verbose) #turn off trigger enables
-        self.calPulser(False)
-        self.preTriggerWindow()
-        self.bufferClear(15)
-        self.write(1,[39,0,0,1]) #send sync
-        self.write(0,[77,0,1,0]) #set buffer to 0 on slave
-        self.write(1,[77,0,1,0]) #set buffer to 0 
-        self.write(1,[39,0,0,0]) #release sync
-        self.write(1,[39,0,0,1]) #send sync
-        self.write(0,[126,0,0,1]) #reset event counter/timestamp on slave
-        self.write(1,[126,0,0,1]) #reset event counter/timestamp 
-        self.write(1,[39,0,0,0]) #release sync
-        self.setReadoutBuffer(0)
         
-        self.getDataManagerStatus(verbose=verbose)
-    '''
+        self.bufferClear()
+        self.calPulser(False)
+        self.bufferClear()
+    
     '''
     #same as above, but just reset the data manager stuff:
     def eventInit(self):
@@ -142,7 +127,7 @@ class Flower():
         self.write(1,[39,0,0,0]) #release sync
         self.setReadoutBuffer(0)
     '''    
-    def bufferClear(self, buf_clear_flag=15):
+    def bufferClear(self, buf_clear_flag=1):
          self.write(self.DEV_FLOWER,[77,0,0,buf_clear_flag]) 
                 
     def calPulser(self, enable=True, freq=0, readback=False):
@@ -156,9 +141,13 @@ class Flower():
         if readback:
             print (self.readRegister(self.DEV_FLOWER,42))
  
-    def softwareTrigger(self, trig):
-        self.write(self.DEV_FLOWER,[64,0,0,trig]) #send software trig 
-       
+    def softwareTrigger(self):
+        self.write(self.DEV_FLOWER,[64,0,0,1]) #send software trig 
+
+    def checkBuffer(self):
+        full_flag = self.readRegister(self.DEV_FLOWER, 0x7)[3] & 0x1
+        return full_flag
+        
     def readRam(self, dev, address_start=0, address_stop=64):
 
         self.write(dev, [65,0,0,1]) #read RAM 0 [ch's 0 & 1]
