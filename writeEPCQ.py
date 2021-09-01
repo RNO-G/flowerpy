@@ -11,10 +11,10 @@ import tools.bf as bf
 
 directory = '/home/rno-g/flowerpy/firmware/'
 
-filename = directory+'output_file_auto.rpd'
+filename = directory+'fw_0p7.rpd'
 
 FILEMAP_START_ADDR = 0x00000000
-FILEMAP_END_ADDR   = 0x00175E77 #this value needs to be updated for each new firmware version
+FILEMAP_END_ADDR   = 0x00180D59 #this value needs to be updated for each new firmware version
 TARGET_START_ADDR  = 0x00200000 #address where application firmware image is stored - STATIC, DO NOT CHANGE!!
 
 def setMode(dev, bus, mode):
@@ -74,14 +74,14 @@ def sectorClear(dev, bus, sector_addr):
 
 def clearApplicationImage(dev, bus, hw_start_addr, image_end_addr):
     current_address = hw_start_addr + 1 - 0x10000 ##clear one sector ahead
-    print 'clearing EEPROM:'
+    print ('clearing EEPROM:')
     while(current_address < (image_end_addr + hw_start_addr + 0x10000)):
         sys.stdout.write('   clearing sector address...0x{:x}  \r'.format(current_address-1))
         sys.stdout.flush()                   
         sectorClear(dev, bus, current_address)
         current_address = current_address + 0x10000
     sys.stdout.write('   clearing sector address...0x{:x}  \n\n'.format(current_address-1))
-    print 'DONE WITH EEPROM CLEAR'
+    print ('DONE WITH EEPROM CLEAR')
 
 def readEPCQBlock(dev, bus, addr, read_data=True):
     current_mode = setMode(dev, bus, 0)
@@ -118,7 +118,7 @@ def verifyEPCQContents(dev, bus, addr, file_byte_list):
     byte_errors = 0
     for i in range(len(file_byte_list)):
         if epcq_byte_list[i] != file_byte_list[i]:
-            print 'MISMATCH FOUND (addr, loc, epcq value, file value): ', hex(addr), i, epcq_byte_list[i], file_byte_list[i], '   '
+            print ('MISMATCH FOUND (addr, loc, epcq value, file value): ', hex(addr), i, epcq_byte_list[i], file_byte_list[i], '   ')
             byte_errors = byte_errors + 1
 
     return byte_errors
@@ -166,14 +166,14 @@ def writeFirmwareToEPCQ(dev, bus, filename, FILEMAP_START_ADDR, FILEMAP_END_ADDR
     with open(filename, 'rb') as binary_rpd_file:
         binary_rpd_file.seek(0,2)  # Seek the end
         num_bytes = binary_rpd_file.tell()
-        print '------------------------'
-        print 'Reading raw programming file:', filename
-        print 'Filesize:', num_bytes, 'bytes'
+        print ('------------------------')
+        print ('Reading raw programming file:', filename)
+        print ('Filesize:', num_bytes, 'bytes')
         if verify:
-            print 'program readback verification: ON'
+            print ('program readback verification: ON')
         else:
-            print 'program readback verification: OFF'
-        print '------------------------\n'
+            print ('program readback verification: OFF')
+        print ('------------------------\n')
         
         binary_rpd_file.seek(0,0) # go back to beginning of file
         
@@ -188,7 +188,8 @@ def writeFirmwareToEPCQ(dev, bus, filename, FILEMAP_START_ADDR, FILEMAP_END_ADDR
             read_256bytes  = binary_rpd_file.read(256)
             write_256bytes = []
             for i in range(256):
-                write_256bytes.append(ord(read_256bytes[i]))
+                write_256bytes.append(read_256bytes[i])
+                #write_256bytes.append(ord(read_256bytes[i])) #python2
                 if verify and ((i+1) % 4) == 0 and i > 0:
                     verify_bytes.extend((write_256bytes[i], write_256bytes[i-1], write_256bytes[i-2], write_256bytes[i-3]))
             #--------------
@@ -199,7 +200,7 @@ def writeFirmwareToEPCQ(dev, bus, filename, FILEMAP_START_ADDR, FILEMAP_END_ADDR
                 verify_epcq_addr = current_address - (16384 - 256) + TARGET_START_ADDR
                 verify_retval = verifyEPCQContents(dev, bus, verify_epcq_addr, verify_bytes)
                 if verify_retval > 0:
-                    print 'byte mismatch(es) found:', verify_retval
+                    print ('byte mismatch(es) found:', verify_retval)
                 verify_bytes=[]
             #--------------
             now=time.time()
@@ -228,19 +229,19 @@ if __name__=='__main__':
     dev=flower.Flower()
     bus = dev.DEV_FLOWER
    
-    print '\n RUNNING REMOTE FIRMWARE IMAGE UPDATE '
+    print ('\n RUNNING REMOTE FIRMWARE IMAGE UPDATE ')
     reconfig.enableRemoteFirmwareBlock(dev, bus, False)
     reconfig.enableRemoteFirmwareBlock(dev, bus, True)
-    print '\n***************************\n'
+    print ('\n***************************\n')
     clearApplicationImage(dev, bus, TARGET_START_ADDR, FILEMAP_END_ADDR)
     #dat = readEPCQBlock(dev, bus, TARGET_START_ADDR)
     #for i in range(len(dat)):
     #    if dat[i] != 0xFF:
     #        print 'clear error', i, dat[i]
-    print '\n***************************\n'
+    print ('\n***************************\n')
     time.sleep(1)
     writeFirmwareToEPCQ(dev,bus,filename,FILEMAP_START_ADDR, FILEMAP_END_ADDR)
     reconfig.enableRemoteFirmwareBlock(dev,bus,False)
-    print '***************************\n'
-    print 'seemed to process successfully'
+    print ('***************************\n')
+    print ('seemed to process successfully')
     

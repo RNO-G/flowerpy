@@ -53,9 +53,9 @@ def readTrigCondition(dev, bus, verbose=True):
     cond = readRemoteConfigData(dev, bus, ru_cmd_map['TRIG_COND_READONLY'])[0]
     bf_cond = bf.bf(cond) #trigger condition is lower 5 bits
     if verbose:
-        print '--------------'
-        print 'FPGA remote upgrade trigger condition:', cond, \
-            ' // bits:', bf_cond[0], bf_cond[1], bf_cond[2], bf_cond[3], bf_cond[4]
+        print ('--------------')
+        print ('FPGA remote upgrade trigger condition:', cond, \
+            ' // bits:', bf_cond[0], bf_cond[1], bf_cond[2], bf_cond[3], bf_cond[4])
     if bf_cond[0] == 1:
         return ru_error['CRC_ERROR']
     elif bf_cond[1] == 1:
@@ -64,10 +64,10 @@ def readTrigCondition(dev, bus, verbose=True):
         return ru_error['WATCHDOG_TIMEOUT']
     elif bf_cond[2] == 1 or bf_cond[3] ==1:
         if verbose:
-            print 'FPGA trig conditions look good'
+            print ('FPGA trig conditions look good')
         return 0
     else:
-        print 'weird, no trig condition received'
+        print ('weird, no trig condition received')
         return -1
     
 def triggerReconfig(dev, bus):
@@ -83,26 +83,26 @@ def reconfigure(dev, bus, AnF=1, epcq_address = 0x01000000,
     #write the AnF bit
     writeRemoteConfiguration(dev, bus, ru_cmd_map['AnF'], AnF)
     if verbose:
-        print 'Reading back AnF value', \
-            readRemoteConfigData(dev, bus, ru_cmd_map['AnF'])
+        print ('Reading back AnF value', \
+            readRemoteConfigData(dev, bus, ru_cmd_map['AnF']))
 
     #enable watchdog feature
     writeRemoteConfiguration(dev, bus, ru_cmd_map['WATCHDOG_ENABLE'], watchdog_enable)
     if verbose:
-        print 'Reading back watchdog enable value', \
-            readRemoteConfigData(dev, bus, ru_cmd_map['WATCHDOG_ENABLE'])
+        print ('Reading back watchdog enable value', \
+            readRemoteConfigData(dev, bus, ru_cmd_map['WATCHDOG_ENABLE']))
 
     #set watchdog timeout value
     writeRemoteConfiguration(dev, bus, ru_cmd_map['WATCHDOG_TIME_VALUE'], watchdog_value)
     if verbose:
-        print 'Reading back watchdog timeout value', \
-            readRemoteConfigData(dev, bus, ru_cmd_map['WATCHDOG_TIME_VALUE'])
+        print ('Reading back watchdog timeout value', \
+            readRemoteConfigData(dev, bus, ru_cmd_map['WATCHDOG_TIME_VALUE']))
         
     #set application start address
     writeRemoteConfiguration(dev, bus, ru_cmd_map['PAGE_SELECT_ADDR'], epcq_address)
     if verbose:
-        print 'Reading back EPCQ firmware image address', \
-            readRemoteConfigData(dev, bus, ru_cmd_map['PAGE_SELECT_ADDR'])
+        print ('Reading back EPCQ firmware image address', \
+            readRemoteConfigData(dev, bus, ru_cmd_map['PAGE_SELECT_ADDR']))
 
     triggerReconfig(dev, bus)
     return 0
@@ -127,23 +127,23 @@ if __name__=='__main__':
     if options.application:
         AnF = 1
         epcq_address = 0x00200000
-        print '-------------------------------'
-        print 'loading application firmware...'
-        print '-------------------------------'
+        print ('-------------------------------')
+        print ('loading application firmware...')
+        print ('-------------------------------')
     else:
         AnF = 0
         epcq_address = 0x00000000
-        print '-------------------------------'
-        print 'loading factory firmware...'
-        print '-------------------------------'
+        print ('-------------------------------')
+        print ('loading factory firmware...')
+        print ('-------------------------------')
 
     dev=flower.Flower()
     enableRemoteFirmwareBlock(dev, dev.DEV_FLOWER, False)
     enableRemoteFirmwareBlock(dev, dev.DEV_FLOWER, True)
     retval=reconfigure(dev, dev.DEV_FLOWER, AnF=AnF, epcq_address=epcq_address)
-    print '-------------'
-    print 'reprogramming firmware...'
-    print '-------------'
+    print ('-------------')
+    print ('reprogramming firmware...')
+    print ('-------------')
     time.sleep(30)
     enableRemoteFirmwareBlock(dev, dev.DEV_FLOWER, False)  #need to disable/re-enable remote blocks to get
     enableRemoteFirmwareBlock(dev, dev.DEV_FLOWER, True)   #updated trig configuration status

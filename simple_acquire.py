@@ -7,10 +7,10 @@ if __name__ == '__main__':
     
     dev = flower.Flower()
     setup.adcGainSelect(dev,0)
-
+    dev.calPulser(True)
     dev.bufferClear()
     print (dev.readRegister(dev.DEV_FLOWER, 0x7))
-    print dev.checkBuffer()
+    print (dev.checkBuffer())
     
     for i in range(4):
         dev.bufferClear()
