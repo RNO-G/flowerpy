@@ -1,4 +1,3 @@
-#!/usr/bin/python
 #
 #   EJO     10/2017
 #   write new firmware image to NuPhase board EEPROM
