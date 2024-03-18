@@ -14,11 +14,22 @@ class FlowerTrig():
         'COINC_TRIG_CH3_THRESH'  : 0x5A,
         'COINC_TRIG_PARAM'       : 0x5B,
         'TRIG_ENABLES'           : 0x3D,
+        'PHASED_THRESHOLDS':0x80,
+        'PHASED_MASK': 0x50
     }
         
     def __init__(self):
         self.dev = flower.Flower()
-    
+
+    def initPhasedTrig(self,power,num_beams=16,mask=0xffff):
+        for i in range(num_beams):
+            self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_THRESHOLDS']+i,(power&0xff0)>>4,((power&0x00f)<<4)+((power&0xf00)>>8),power&0xff])
+        self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_MASK'],0,(mask&0xff00)>>8,mask&0xff])
+        self.read_phased_trig()
+    def read_phased_trig(self):
+        for i in range(16):
+            thresh=self.dev.readRegister(self.dev.DEV_FLOWER,self.map['PHASED_THRESHOLDS']+i)
+            print(thresh)
     def initCoincTrig(self, num_coinc, thresh, servo_thresh, vppmode=True, coinc_window=2):
         
         for i in range(4):
@@ -27,7 +38,7 @@ class FlowerTrig():
                                              vppmode,coinc_window, num_coinc])
 
     def setScalerOut(self, scaler_adr=0):
-        if scaler_adr < 0 or scaler_adr > 63:
+        if scaler_adr < 0 or scaler_adr > 6*(16+1)+1:
             return None
         self.dev.write(self.dev.DEV_FLOWER, [self.map['SCALER_SEL_REG'],0,0,scaler_adr])
         #print self.dev.readRegister(self.dev.DEV_FLOWER, 41)
@@ -39,10 +50,10 @@ class FlowerTrig():
         scaler_hi  = (read_scaler_reg[1] & 0xFF) << 4 | (read_scaler_reg[2] & 0xF0) >> 4
         return scaler_low, scaler_hi
 
-    def trigEnable(self, coinc_trig=0, pps_trig=0, ext_trig=0):
+    def trigEnable(self, coinc_trig=0, phased_trig=0, pps_trig=0, ext_trig=0):
         '''specify '0' or '1' for trigger types
         '''
-        self.dev.write(self.dev.DEV_FLOWER, [self.map['TRIG_ENABLES'],ext_trig, coinc_trig, pps_trig])
+        self.dev.write(self.dev.DEV_FLOWER, [self.map['TRIG_ENABLES'],ext_trig, (phased_trig<<1)+coinc_trig, pps_trig])
         
     
     

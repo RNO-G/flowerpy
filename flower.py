@@ -9,7 +9,7 @@ import datetime
 
 class Flower():
     spi_bytes = 4  #transaction must include 4 bytes
-    firmware_registers_adr_max=128
+    firmware_registers_adr_max=256
     firmware_ram_adr_max=128
 
     map = {
@@ -183,7 +183,14 @@ class Flower():
             print (dev,return_address,data)
 
         return data0, data1
-    
+    def read_triggering_things(self):
+        chans=self.readRegister(self.DEV_FLOWER,15)
+        beams=self.readRegister(self.DEV_FLOWER,16)
+        pow=self.readRegister(self.DEV_FLOWER,17)
+
+        print('chans triggering:',chans)
+        print('beams triggering:',beams)
+        print('beam 0 power:',pow)
         
 if __name__=="__main__":
     d=Flower()
