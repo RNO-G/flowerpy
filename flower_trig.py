@@ -21,22 +21,22 @@ class FlowerTrig():
     def __init__(self):
         self.dev = flower.Flower()
 
-    def initPhasedTrig(self,power,num_beams=16,mask=0xffff):
+    def initPhasedTrig(self,power=0xfff,num_beams=16,mask=0xffff,do_readback=False):
         for i in range(num_beams):
             self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_THRESHOLDS']+i,(power&0xff0)>>4,((power&0x00f)<<4)+((power&0xf00)>>8),power&0xff])
         self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_MASK'],0,(mask&0xff00)>>8,mask&0xff])
-        self.read_phased_trig()
+        if do_readback:self.read_phased_trig()
     def read_phased_trig(self):
         for i in range(16):
             thresh=self.dev.readRegister(self.dev.DEV_FLOWER,self.map['PHASED_THRESHOLDS']+i)
             print(thresh)
-    def initCoincTrig(self, num_coinc, thresh, servo_thresh, vppmode=True, coinc_window=2):
+    def initCoincTrig(self, num_coinc, thresh, servo_thresh, vppmode=True, coinc_window=2,mask=0xf):
         
         for i in range(4):
             self.dev.write(self.dev.DEV_FLOWER, [self.map['COINC_TRIG_CH0_THRESH']+i,0,servo_thresh[i], thresh[i]])
         self.dev.write(self.dev.DEV_FLOWER, [self.map['COINC_TRIG_PARAM'],
                                              vppmode,coinc_window, num_coinc])
-
+        self.dev.write(self.dev.DEV_FLOWER,[self.map['COINC_TRIG_PARAM']+4,0,0,mask])
     def setScalerOut(self, scaler_adr=0):
         if scaler_adr < 0 or scaler_adr > 6*(16+1)+1:
             return None

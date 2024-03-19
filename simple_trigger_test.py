@@ -4,10 +4,12 @@ import setup_board
 
 trig = flower_trig.FlowerTrig()
 
-trig.dev.calPulser(True,freq=1)
+#trig.dev.calPulser(True,freq=1)
+trig.dev.calPulser(False)
 setup_board.adcGainSelect(trig.dev, 0)
 effective_disable_thresh = [120,120,120,120]
 trig.initCoincTrig(0,effective_disable_thresh,effective_disable_thresh,vppmode=0)
+trig.trigEnable(coinc_trig=1)
 for i in range(20, 0, -1):
     print (i)
     trig.initCoincTrig(0, [i,i,i,i], [120,120,120,120], vppmode=0)

@@ -184,10 +184,11 @@ class Flower():
 
         return data0, data1
     def read_triggering_things(self):
-        chans=self.readRegister(self.DEV_FLOWER,15)
-        beams=self.readRegister(self.DEV_FLOWER,16)
-        pow=self.readRegister(self.DEV_FLOWER,17)
-
+        
+        chans=self.readRegister(self.DEV_FLOWER,16)
+        beams=self.readRegister(self.DEV_FLOWER,17)
+        pow=self.readRegister(self.DEV_FLOWER,18)
+	
         print('chans triggering:',chans)
         print('beams triggering:',beams)
         print('beam 0 power:',pow)
