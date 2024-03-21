@@ -15,9 +15,10 @@ for i in range(20, 0, -1):
     trig.initCoincTrig(0, [i,i,i,i], [120,120,120,120], vppmode=0)
     print (trig.dev.readRegister(trig.dev.DEV_FLOWER, 0x57))
     time.sleep(1)
-    for j in range(29):
+    for j in range(0,30,2):
+        #print('reading scalers',j)
         trig.setScalerOut(j)
-        print (trig.readSingleScaler())
+        print ('%i,%i'%(j+1,j),trig.readSingleScaler())
     trig.setScalerOut(30)
     print ('scaler pps', trig.readSingleScaler())
 
