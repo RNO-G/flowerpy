@@ -24,6 +24,7 @@ class Flower():
         'MODE'          : 0x42, #select readout mode
         'CALPULSE'      : 0x2A, #toggle RF switch/pulser board
         'DATVALID'      : 0x3A, #once ADCs are setup, this toggles Rx FIFOs
+        'PRETRIG'       : 0x4C
     }
         
     def __init__(self, spi_clk_freq=10000000):
@@ -42,7 +43,9 @@ class Flower():
 
         self.current_buffer = 0
         self.current_trigger= 0
-    
+    def set_pretrigger(self,num_blocks=8):
+        self.write(self.DEV_FLOWER,[self.map['PRETRIG'],0,0,num_blocks])
+
     def write(self, dev, data):
         if len(data) != 4:
             return None
@@ -107,7 +110,7 @@ class Flower():
                     
                                                            
     def boardInit(self, verbose=False):
-        
+        self.set_pretrigger()
         self.bufferClear()
         self.calPulser(False)
         self.bufferClear()
@@ -184,11 +187,9 @@ class Flower():
 
         return data0, data1
     def read_triggering_things(self):
-        
         chans=self.readRegister(self.DEV_FLOWER,16)
         beams=self.readRegister(self.DEV_FLOWER,17)
         pow=self.readRegister(self.DEV_FLOWER,18)
-	
         print('chans triggering:',chans)
         print('beams triggering:',beams)
         print('beam 0 power:',pow)

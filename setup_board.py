@@ -177,10 +177,16 @@ def boardStartup(dev):
 if __name__=='__main__':
 
     dev = flower.Flower()
-    boardStartup(dev)
-    print ('tuning adc bitstream..')
-    testPatternBitShift(dev)
-    print ('aligning adc samples..')
-    align_adcs.do(dev)
-    print ('done')
+    all_good=False
+    max_tries=20
+    count=0
+    while(not all_good and count<max_tries):
+        count=count+1
+        boardStartup(dev)
+        print ('tuning adc bitstream..')
+        shift_good,_=testPatternBitShift(dev)
+        print ('aligning adc samples..')
+        check=align_adcs.do(dev)
+        if check==0 and shift_good==True:all_good=True
+        print ('done')
     
