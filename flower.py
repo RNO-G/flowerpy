@@ -24,7 +24,7 @@ class Flower():
         'MODE'          : 0x42, #select readout mode
         'CALPULSE'      : 0x2A, #toggle RF switch/pulser board
         'DATVALID'      : 0x3A, #once ADCs are setup, this toggles Rx FIFOs
-        'PRETRIG'       : 0x4C
+        'PRETRIG'       : 0x4C  #length of pretrigger for waveform readout
     }
         
     def __init__(self, spi_clk_freq=10000000):
@@ -43,6 +43,7 @@ class Flower():
 
         self.current_buffer = 0
         self.current_trigger= 0
+
     def set_pretrigger(self,num_blocks=8):
         self.write(self.DEV_FLOWER,[self.map['PRETRIG'],0,0,num_blocks])
 

@@ -177,6 +177,7 @@ def boardStartup(dev):
 if __name__=='__main__':
 
     dev = flower.Flower()
+    dev.set_pretrigger()
     all_good=False
     max_tries=20
     count=0
