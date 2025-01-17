@@ -21,15 +21,15 @@ class FlowerTrig():
     def __init__(self):
         self.dev = flower.Flower()
 
-    def initPhasedTrig(self,power=0xfff,servo=0xfff,num_beams=16,mask=0xffff,offset=0000,do_readback=False):
+    def initPhasedTrig(self,power=0xfff,servo=0xfff,num_beams=12,mask=0xffff,offset=0000,do_readback=False):
         for i in range(num_beams):
             self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_THRESHOLDS']+i,(servo&0xff0)>>4,((servo&0x00f)<<4)+((power&0xf00)>>8),power&0xff])
         self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_MASK'],0,(mask&0xff00)>>8,mask&0xff])
         self.dev.write(self.dev.DEV_FLOWER,[self.map['PHASED_MASK']+1,0,(offset&0xff00)>>8,(offset&0xff)])
         if do_readback:self.read_phased_trig()
 
-    def read_phased_trig(self):
-        for i in range(16):
+    def read_phased_trig(self, num_beams=12):
+        for i in range(num_beams):
             thresh=self.dev.readRegister(self.dev.DEV_FLOWER,self.map['PHASED_THRESHOLDS']+i)
             print(thresh)
 

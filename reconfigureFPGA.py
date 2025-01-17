@@ -122,9 +122,15 @@ if __name__=='__main__':
     usage = "usage: %prog [options]"
     #option for loading application firmware image
     parser.add_option("-a", "--application", action="store_const", dest="application", const=True)
-    (options, args) = parser.parse_args()
+    parser.add_option("-b", "--big", action="store_const", dest="big", const=True)
 
-    if options.application:
+    (options, args) = parser.parse_args()
+    if options.big:
+        epcq_address=0x00400000
+        AnF = 1
+        print("big firmware image")
+
+    elif options.application:
         AnF = 1
         epcq_address = 0x00200000
         print ('-------------------------------')

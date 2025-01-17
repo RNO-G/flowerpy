@@ -8,13 +8,18 @@ import time
 import reconfigureFPGA as reconfig
 import tools.bf as bf
 
-directory = '/home/rno-g/flowerpy/firmware/'
 
-filename = directory+'v0p10.rpd'
+directory = '/data/firmware/flower/'
+
+firmware_size = "big"
+filename = directory+'v0p14.rpd'
 
 FILEMAP_START_ADDR = 0x00000000
-FILEMAP_END_ADDR   = 0x001F0155 #this value needs to be updated for each new firmware version
-TARGET_START_ADDR  = 0x00200000 #address where application firmware image is stored - STATIC, DO NOT CHANGE!!
+FILEMAP_END_ADDR   = 0x00238478 #this value needs to be updated for each new firmware version
+TARGET_START_ADDR  = 0x00200000 #address where application firmware image is stored
+
+if firmware_size=="big":
+    TARGET_START_ADDR = 0x00400000
 
 def setMode(dev, bus, mode):
     #mode = 1 to write to 256 byte firmware block FIFO
