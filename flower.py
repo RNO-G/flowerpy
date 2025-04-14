@@ -93,7 +93,7 @@ class Flower():
         fw_info=[]
         
         firmware_version = self.readRegister(self.DEV_FLOWER, self.map['FIRMWARE_VER'])
-        firmware_version = [firmware_version[1], str((firmware_version[3] & 0xF0)>>4)+'.'+str(firmware_version[3]&0x0F)]
+        firmware_version = [firmware_version[1], str(firmware_version[2])+'.'+str(firmware_version[3])]
         print ('firmware version:', firmware_version)
         firmware_date = self.readRegister(self.DEV_FLOWER, self.map['FIRMWARE_DATE'])
         firmware_date = [(firmware_date[1])<<4 | (firmware_date[2] & 0xF0)>>4, firmware_date[2] & 0x0F, firmware_date[3]]
