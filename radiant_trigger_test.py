@@ -18,8 +18,8 @@ time.sleep(4)
 for j in range(18):
     trig.setScalerOut(j)
     print (trig.readSingleScaler())
-    trig.setScalerOut(31)
-print ('scaler pps', trig.readSingleScaler())
+
+print ('scaler pps', trig.readScalerPPS())
 
 trig.dev.write(trig.dev.DEV_FLOWER,[92,0,0,1]) #enable trig to sysout
 trig.dev.write(trig.dev.DEV_FLOWER,[93,0,0,1]) #enable trig to aux SMA out

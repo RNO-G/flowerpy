@@ -44,6 +44,11 @@ class Flower():
         self.current_buffer = 0
         self.current_trigger= 0
 
+        self.firmware_version_major = 0
+        self.firmware_version_minor = 0
+        self.firmware_version_int = 0
+
+
     def set_pretrigger(self,num_blocks=8):
         self.write(self.DEV_FLOWER,[self.map['PRETRIG'],0,0,num_blocks])
 
@@ -108,7 +113,11 @@ class Flower():
                 for i in range(len(fw_info)):
                     f.write(str(fw_info[i])+'\n')
             f.close()
-                    
+
+        self.firmware_version_minor = int(firmware_version[3])
+        self.firmware_version_major = int(firmware_version[2])
+        self.firmware_version_int = self.firmware_version_major * 1000 + self.firmware_version_minor
+
                                                            
     def boardInit(self, verbose=False):
         self.set_pretrigger()
@@ -187,13 +196,6 @@ class Flower():
             print (dev,return_address,data)
 
         return data0, data1
-    def read_triggering_things(self):
-        chans=self.readRegister(self.DEV_FLOWER,16)
-        beams=self.readRegister(self.DEV_FLOWER,17)
-        pow=self.readRegister(self.DEV_FLOWER,18)
-        print('chans triggering:',chans)
-        print('beams triggering:',beams)
-        print('beam 0 power:',pow)
         
 if __name__=="__main__":
     d=Flower()

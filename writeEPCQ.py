@@ -9,13 +9,13 @@ import reconfigureFPGA as reconfig
 import tools.bf as bf
 
 
-directory = '/data/firmware/flower/'
+directory = 'flower/firmware/'
 
 firmware_size = "big"
-filename = directory+'v0p14.rpd'
+filename = directory+'v0p18_station11.rpd'
 
 FILEMAP_START_ADDR = 0x00000000
-FILEMAP_END_ADDR   = 0x00238478 #this value needs to be updated for each new firmware version
+FILEMAP_END_ADDR   = 0x0024A488 #this value needs to be updated for each new firmware version
 TARGET_START_ADDR  = 0x00200000 #address where application firmware image is stored
 
 if firmware_size=="big":

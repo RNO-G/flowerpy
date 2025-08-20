@@ -16,21 +16,10 @@ def get_channel_thresh(desired_rate, channel, trig, thresh_low = 17, thresh_high
         time.sleep(1)
 
         #Now read out the trigger rate
-        if channel == 0:
-            trig.setScalerOut(0)
-            second_num = 1
-        elif (channel == 1) or (channel == 2):
-            trig.setScalerOut(1)
-            second_num = channel - 1
-        elif channel == 3:
-            trig.setScalerOut(2)
-            second_num = 0
-
         averate = 0
         for i in range(num_ave):
             time.sleep(0.1)
-            averate += trig.readSingleScaler()[second_num]/num_ave
-        
+            averate += trig.readCoincTrigChannelScaler(channel=channel)/num_ave
 
         if averate < desired_rate:
             print(f"channel {channel} has rate {averate} at threshold {tval}")
@@ -69,11 +58,10 @@ if __name__ == "__main__":
         trig.initCoincTrig(1, thresh_list, servo_list, vppmode=0, coinc_window = 3)
         time.sleep(1)
 
-        trig.setScalerOut(0)
         coinc_rate = 0
         for i in range(num_ave_final):
             time.sleep(0.1)
-            coinc_rate += trig.readSingleScaler()[0]/num_ave_final
+            coinc_rate += trig.readCoincTrigScaler()/num_ave_final
 
         print(f"Trigger rate with thresholds {thresh_list} is {coinc_rate:.3f}")
         single_chan_rates.append(per_channel_rate)
